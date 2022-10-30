@@ -79,7 +79,7 @@ func (canvas *Canvas) SetPixel(x int, y int, color color.RGBA) {
 func (canvas *Canvas) PixelAt(x int, y int) color.RGBA {
 	pixelStart := (y-canvas.Image.Rect.Min.Y)*canvas.Image.Stride + (x-canvas.Image.Rect.Min.X)*4
 	if pixelStart+3 > (canvas.Pixels*4) || pixelStart < 0 {
-		return color.RGBA{255, 255, 255, 255}
+		return color.RGBA{}
 	}
 
 	return color.RGBA{
