@@ -20,6 +20,10 @@ canvas := kiten.NewCanvas(width, height, kiten.BlendAdd)
 canvas := kiten.CanvasFromImageRGBA(image, kiten.BlendAdd)
 ```
 
+## [Real time example](https://github.com/zeozeozeo/kiten-simple)
+
+![example](https://github.com/zeozeozeo/kiten-simple/blob/main/example.gif?raw=true)
+
 ## Fill the whole canvas with a black color
 
 If you're rendering multiple frames, remember to clear the canvas when drawing a new frame
