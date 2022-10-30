@@ -300,21 +300,3 @@ func (canvas *Canvas) IsPointInCanvas(x int, y int) bool {
 func (canvas *Canvas) WritePNG(writer io.Writer) error {
 	return png.Encode(writer, canvas.Image)
 }
-
-// Clamp an integer between max and min
-func ClampInt(val int, max int, min int) int {
-	if val > max {
-		return max
-	}
-	if val < min {
-		return min
-	}
-	return val
-}
-
-func ClampUint8(val uint8, max uint8) uint8 {
-	if val > max {
-		return max
-	}
-	return val
-}
