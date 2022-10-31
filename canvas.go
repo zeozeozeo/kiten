@@ -193,7 +193,7 @@ func (canvas *Canvas) Circle(cx, cy, r int, color color.RGBA) {
 	}
 }
 
-// Draws a filled cirlce
+// Draws a filled circle
 func (canvas *Canvas) CircleFilled(cx, cy, r int, color color.RGBA) {
 	floatR := float64(r)
 
