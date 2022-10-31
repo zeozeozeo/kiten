@@ -101,7 +101,7 @@ import (
 // Generate a path
 path := []image.Point{}
 for i := 0; i < 100; i++ {
-    path = append(path, image.Pt(i*30, canvas.Height/2))
+    path = append(path, image.Pt(i*30, canvas.Height/2-rand.Intn(100)))
 }
 
 // Draw it
