@@ -383,7 +383,7 @@ func (canvas *Canvas) TriangleOutline(x1, y1, x2, y2, x3, y3 int, fillColor, out
 
 // Is the point inside of the canvas?
 func (canvas *Canvas) IsPointInCanvas(x, y int) bool {
-	return x > 0 && x < canvas.Width && y > 0 && y < canvas.Height
+	return x >= 0 && x < canvas.Width && y >= 0 && y < canvas.Height
 }
 
 // Export to PNG
