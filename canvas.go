@@ -52,10 +52,10 @@ func CanvasFromImageRGBA(img *image.RGBA, blendType BlendType) *Canvas {
 // Set a pixel on a canvas
 func (canvas *Canvas) SetPixel(x, y int, color color.RGBA) {
 	// Faster than image.Set
-	pixelStart := (y-canvas.Image.Rect.Min.Y)*canvas.Image.Stride + (x-canvas.Image.Rect.Min.X)*4
-	if pixelStart+3 > (canvas.Pixels*4)-1 || pixelStart < 0 {
+	if x < 0 || y < 0 || x > canvas.Width-1 || y > canvas.Height-1 {
 		return
 	}
+	pixelStart := (y-canvas.Image.Rect.Min.Y)*canvas.Image.Stride + (x-canvas.Image.Rect.Min.X)*4
 
 	canvas.Image.Pix[pixelStart+3] = 255
 	if color.A == 255 || canvas.BlendType == BlendNone {
@@ -77,10 +77,10 @@ func (canvas *Canvas) SetPixel(x, y int, color color.RGBA) {
 
 // Returns the color value at x and y
 func (canvas *Canvas) PixelAt(x, y int) color.RGBA {
-	pixelStart := (y-canvas.Image.Rect.Min.Y)*canvas.Image.Stride + (x-canvas.Image.Rect.Min.X)*4
-	if pixelStart+3 > (canvas.Pixels*4) || pixelStart < 0 {
+	if x < 0 || y < 0 || x > canvas.Width-1 || y > canvas.Height-1 {
 		return color.RGBA{}
 	}
+	pixelStart := (y-canvas.Image.Rect.Min.Y)*canvas.Image.Stride + (x-canvas.Image.Rect.Min.X)*4
 
 	return color.RGBA{
 		canvas.Image.Pix[pixelStart],
@@ -167,10 +167,6 @@ func (canvas *Canvas) Circle(cx, cy, r int, color color.RGBA) {
 	err := dx - (r * 2)
 
 	for x >= y {
-		// TODO: Clip circle when x < 0
-		if cx+x >= canvas.Width || cx-x < 0 {
-			return
-		}
 		canvas.SetPixel(cx+x, cy+y, color)
 		canvas.SetPixel(cx+y, cy+x, color)
 		canvas.SetPixel(cx-y, cy+x, color)
