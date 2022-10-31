@@ -29,7 +29,7 @@ const (
 )
 
 // Create a new canvas with width of x and height of y
-func NewCanvas(x int, y int, blendType BlendType) *Canvas {
+func NewCanvas(x, y int, blendType BlendType) *Canvas {
 	canvas := &Canvas{BlendType: blendType}
 	canvas.Image = image.NewRGBA(image.Rect(0, 0, x, y))
 	canvas.Pixels = x * y
@@ -50,7 +50,7 @@ func CanvasFromImageRGBA(img *image.RGBA, blendType BlendType) *Canvas {
 }
 
 // Set a pixel on a canvas
-func (canvas *Canvas) SetPixel(x int, y int, color color.RGBA) {
+func (canvas *Canvas) SetPixel(x, y int, color color.RGBA) {
 	// Faster than image.Set
 	pixelStart := (y-canvas.Image.Rect.Min.Y)*canvas.Image.Stride + (x-canvas.Image.Rect.Min.X)*4
 	if pixelStart+3 > (canvas.Pixels*4)-1 || pixelStart < 0 {
@@ -76,7 +76,7 @@ func (canvas *Canvas) SetPixel(x int, y int, color color.RGBA) {
 }
 
 // Returns the color value at x and y
-func (canvas *Canvas) PixelAt(x int, y int) color.RGBA {
+func (canvas *Canvas) PixelAt(x, y int) color.RGBA {
 	pixelStart := (y-canvas.Image.Rect.Min.Y)*canvas.Image.Stride + (x-canvas.Image.Rect.Min.X)*4
 	if pixelStart+3 > (canvas.Pixels*4) || pixelStart < 0 {
 		return color.RGBA{}
@@ -100,33 +100,33 @@ func (canvas *Canvas) Fill(color color.RGBA) {
 }
 
 // Draws a line
-func (canvas *Canvas) Line(x0 int, y0 int, x1 int, y1 int, color color.RGBA) {
+func (canvas *Canvas) Line(x1, y1, x2, y2 int, color color.RGBA) {
 	// TODO: Antialiasing
-	dx := x1 - x0
+	dx := x2 - x1
 	if dx < 0 {
 		dx = -dx
 	}
-	dy := y1 - y0
+	dy := y2 - y1
 	if dy < 0 {
 		dy = -dy
 	}
 	var sx, sy int
-	if x0 < x1 {
+	if x1 < x2 {
 		sx = 1
 	} else {
 		sx = -1
 	}
-	if y0 < y1 {
+	if y1 < y2 {
 		sy = 1
 	} else {
 		sy = -1
 	}
 	err := dx - dy
-	x, y := x0, y0
+	x, y := x1, y1
 
 	for {
 		canvas.SetPixel(x, y, color)
-		if x == x1 && y == y1 {
+		if x == x2 && y == y2 {
 			return
 		}
 		e2 := 2 * err
@@ -145,7 +145,7 @@ func (canvas *Canvas) Line(x0 int, y0 int, x1 int, y1 int, color color.RGBA) {
 }
 
 // Draws a filled rectangle
-func (canvas *Canvas) RectFilled(x1 int, y1 int, x2 int, y2 int, color color.RGBA) {
+func (canvas *Canvas) RectFilled(x1, y1, x2, y2 int, color color.RGBA) {
 	for x := x1; x <= x2; x++ {
 		for y := y1; y <= y2; y++ {
 			canvas.SetPixel(x, y, color)
@@ -154,7 +154,7 @@ func (canvas *Canvas) RectFilled(x1 int, y1 int, x2 int, y2 int, color color.RGB
 }
 
 // Draws a rectangle (not filled)
-func (canvas *Canvas) Rect(x1 int, y1 int, x2 int, y2 int, color color.RGBA) {
+func (canvas *Canvas) Rect(x1, y1, x2, y2 int, color color.RGBA) {
 	canvas.Line(x1, y1, x2, y1, color) // Left to right, top
 	canvas.Line(x2, y1, x2, y2, color) // Top to bottom, right
 	canvas.Line(x1, y2, x2, y2, color) // Left to right, bottom
@@ -162,7 +162,7 @@ func (canvas *Canvas) Rect(x1 int, y1 int, x2 int, y2 int, color color.RGBA) {
 }
 
 // Draws a circle (not filled)
-func (canvas *Canvas) Circle(cx int, cy int, r int, color color.RGBA) {
+func (canvas *Canvas) Circle(cx, cy, r int, color color.RGBA) {
 	x, y, dx, dy := r-1, 0, 1, 1
 	err := dx - (r * 2)
 
@@ -194,7 +194,7 @@ func (canvas *Canvas) Circle(cx int, cy int, r int, color color.RGBA) {
 }
 
 // Draws a filled cirlce
-func (canvas *Canvas) CircleFilled(cx int, cy int, r int, color color.RGBA) {
+func (canvas *Canvas) CircleFilled(cx, cy, r int, color color.RGBA) {
 	floatR := float64(r)
 
 	for x := -r; x <= r; x++ {
@@ -215,13 +215,13 @@ func (canvas *Canvas) CircleFilled(cx int, cy int, r int, color color.RGBA) {
 }
 
 // Draws a circle with an outline
-func (canvas *Canvas) CircleOutline(cx int, cy int, r int, insideColor color.RGBA, outlineColor color.RGBA) {
+func (canvas *Canvas) CircleOutline(cx, cy, r int, insideColor, outlineColor color.RGBA) {
 	canvas.CircleFilled(cx, cy, r, insideColor)
 	canvas.Circle(cx, cy, r, outlineColor)
 }
 
 // Draw a canvas on top of this canvas
-func (canvas *Canvas) PutCanvas(x int, y int, w int, h int, canvas2 *Canvas) {
+func (canvas *Canvas) PutCanvas(x, y, w, h int, canvas2 *Canvas) {
 	if canvas2.Width == 0 || canvas2.Height == 0 || canvas.Width == 0 || canvas.Height == 0 || w == 0 || h == 0 {
 		return
 	}
@@ -248,7 +248,7 @@ func (canvas *Canvas) DrawPath(path []image.Point, color color.RGBA) {
 	}
 }
 
-func (canvas *Canvas) Text(text string, x int, y int, face *basicfont.Face, color color.RGBA) {
+func (canvas *Canvas) Text(text string, x, y int, face *basicfont.Face, color color.RGBA) {
 	textCanvas := NewCanvas(len(text)*face.Width, face.Height, BlendAdd)
 	point := fixed.Point26_6{X: fixed.I(0), Y: fixed.I(face.Height)}
 	drawer := &font.Drawer{
@@ -280,7 +280,7 @@ func Deg2Rad(degrees float64) float64 {
 }
 
 // Rotate a point in space by degrees
-func (canvas *Canvas) RotatePoint(x float64, y float64, degrees float64) (int, int) {
+func (canvas *Canvas) RotatePoint(x, y, degrees float64) (int, int) {
 	halfWidth := float64(canvas.Width) / 2
 	halfHeight := float64(canvas.Height) / 2
 
@@ -291,8 +291,98 @@ func (canvas *Canvas) RotatePoint(x float64, y float64, degrees float64) (int, i
 	return int(math.Cos(dir)*mag + halfWidth), int(math.Sin(dir)*mag + halfHeight)
 }
 
+// Draws a triangle (not filled)
+func (canvas *Canvas) Triangle(x1, y1, x2, y2, x3, y3 int, color color.RGBA) {
+	canvas.Line(x1, y1, x2, y2, color)
+	canvas.Line(x2, y2, x3, y3, color)
+	canvas.Line(x3, y3, x1, y1, color)
+}
+
+// Draws a filled triangle
+func (canvas *Canvas) TriangleFilled(x1, y1, x2, y2, x3, y3 int, color color.RGBA) {
+	// Swap
+	if y1 > y2 {
+		x1, x2 = x2, x1
+		y1, y2 = y2, y1
+	}
+	if y2 > y3 {
+		x2, x3 = x3, x2
+		y2, y3 = y3, y2
+	}
+	if y1 > y2 {
+		x1, x2 = x2, x1
+		y1, y2 = y2, y1
+	}
+
+	dx12 := x2 - x1
+	dy12 := y2 - y1
+	dx13 := x3 - x1
+	dy13 := y3 - y1
+
+	for y := y1; y <= y2; y++ {
+		if 0 <= y && y < canvas.Height {
+			var s1, s2 int
+			if dy12 != 0 {
+				s1 = (y-y1)*dx12/dy12 + x1
+			} else {
+				s1 = x1
+			}
+			if dy13 != 0 {
+				s2 = (y-y1)*dx13/dy13 + x1
+			} else {
+				s2 = x1
+			}
+			if s1 > s2 {
+				s1, s2 = s2, s1
+			}
+
+			for x := s1; x <= s2; x++ {
+				if 0 <= x && x < canvas.Width {
+					canvas.SetPixel(x, y, color)
+				}
+			}
+		}
+	}
+
+	dx32 := x2 - x3
+	dy32 := y2 - y3
+	dx31 := x1 - x3
+	dy31 := y1 - y3
+
+	for y := y2; y <= y3; y++ {
+		if 0 <= y && y < canvas.Height {
+			var s1, s2 int
+			if dy32 != 0 {
+				s1 = (y-y3)*dx32/dy32 + x3
+			} else {
+				s1 = x3
+			}
+			if dy31 != 0 {
+				s2 = (y-y3)*dx31/dy31 + x3
+			} else {
+				s2 = x3
+			}
+			if s1 > s2 {
+				s1, s2 = s2, s1
+			}
+
+			for x := s1; x <= s2; x++ {
+				if 0 <= x && x < canvas.Width {
+					canvas.SetPixel(x, y, color)
+				}
+			}
+		}
+	}
+}
+
+// Draws a triangle with an outline
+func (canvas *Canvas) TriangleOutline(x1, y1, x2, y2, x3, y3 int, fillColor, outlineColor color.RGBA) {
+	canvas.TriangleFilled(x1, y1, x2, y2, x3, y3, fillColor)
+	canvas.Triangle(x1, y1, x2, y2, x3, y3, outlineColor)
+}
+
 // Is the point inside of the canvas?
-func (canvas *Canvas) IsPointInCanvas(x int, y int) bool {
+func (canvas *Canvas) IsPointInCanvas(x, y int) bool {
 	return x > 0 && x < canvas.Width && y > 0 && y < canvas.Height
 }
 

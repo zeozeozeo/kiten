@@ -130,3 +130,21 @@ if err != nil {
     panic(err)
 }
 ```
+
+## Draw a white (not filled) triangle (500,500 -> 500,700 -> 600,700)
+
+```go
+canvas.Triangle(500, 500, 500, 700, 600, 700, color.RGBA{255, 255, 255, 255})
+```
+
+## Draw a white filled triangle (500,500 -> 500,700 -> 600,700)
+
+```go
+canvas.TriangleFilled(500, 500, 500, 700, 600, 700, color.RGBA{255, 255, 255, 255})
+```
+
+## Draw a white filled triangle with a red outline (500,500 -> 500,700 -> 600,700)
+
+```go
+canvas.TriangleOutline(500, 500, 500, 700, 600, 700, color.RGBA{255, 255, 255, 255}, color.RGBA{255, 0, 0, 255})
+```
